@@ -1,0 +1,37 @@
+---
+upstream_project_url: https://github.com/Stranger6667/jsonschema
+upstream_package_name: jsonschema
+downstream_package_name: rust-jsonschema
+
+upstream_tag_template: v{version}
+
+specfile_path: rust-jsonschema.spec
+
+srpm_build_deps:
+  - git
+  - make
+
+actions:
+  # The last step here is required by Packit to return the archive name
+  # https://packit.dev/docs/configuration/actions#create-archive
+  create-archive:
+    - bash -c "make sources"
+    - bash -c "ls -1 *.crate"
+
+jobs:
+  # Build RPMs for each pull request
+  - job: copr_build
+    trigger: pull_request
+    owner: "r0x0d"
+    project: rust-jsonschema
+    targets:
+      - fedora-all
+
+  # Build RPMs for main branch
+  - job: copr_build
+    trigger: commit
+    branch: main
+    owner: "r0x0d"
+    project: rust-jsonschema
+    targets:
+      - fedora-all
